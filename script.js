@@ -1,3 +1,20 @@
+const APPBARBER_URL = "https://sites.appbarber.com.br/barbeariadoalem-gkiu";
+
+// Fonte única para preços e duração dos destaques e do catálogo.
+const serviceCatalog = [
+  { id: "completo", name: "Barba, cabelo, bigode e sobrancelha", price: "R$ 70,00", duration: "60 min" },
+  { id: "barbaterapia", name: "Barbaterapia", price: "R$ 30,00", duration: "30 min" },
+  { id: "cabelo-sobrancelha", name: "Cabelo + Sobrancelha", price: "R$ 45,00", duration: "30 min" },
+  { id: "corte", name: "Corte", price: "R$ 35,00", duration: "30 min" },
+  { id: "corte-um-pente", name: "Corte com 1 pente", price: "R$ 25,00", duration: "15 min" },
+  { id: "corte-barba", name: "Corte + Barba", price: "R$ 65,00", duration: "60 min" },
+  { id: "hidratacao", name: "Hidratação", price: "R$ 15,00", duration: "15 min" },
+  { id: "limpeza-pele", name: "Limpeza de pele", price: "R$ 15,00", duration: "15 min" },
+  { id: "platinado", name: "Platinado", price: "A partir de R$ 89,99", duration: "60 min" },
+  { id: "relaxamento", name: "Relaxamento", price: "A partir de R$ 59,99", duration: "30 min" },
+  { id: "sobrancelha", name: "Sobrancelha", price: "R$ 10,00", duration: "15 min" }
+];
+
 const toggle = document.querySelector(".menu-toggle");
 const navigation = document.querySelector("#navigation");
 const header = document.querySelector(".header");
@@ -39,10 +56,8 @@ const revealSelector = [
   ".footer-main > *", ".footer-bottom > *"
 ].join(",");
 let revealObserver = null;
-
 function observeSiteReveal(root = document) {
-  const targets = [...root.querySelectorAll(revealSelector)]
-    .filter(target => !target.classList.contains("reveal"));
+  const targets = [...root.querySelectorAll(revealSelector)].filter(target => !target.classList.contains("reveal"));
   if (reduceMotion.matches || !("IntersectionObserver" in window)) {
     targets.forEach(target => target.classList.add("reveal", "is-revealed"));
     return;
@@ -68,6 +83,64 @@ function observeSiteReveal(root = document) {
 }
 window.observeSiteReveal = observeSiteReveal;
 observeSiteReveal();
+
+const catalogList = document.querySelector("#catalog-list");
+const catalogSearch = document.querySelector("#service-search");
+const catalogEmpty = document.querySelector("#catalog-empty");
+function normalizeSearch(value) {
+  return value.trim().normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+}
+function createClockIcon() {
+  const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  icon.setAttribute("aria-hidden", "true");
+  const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+  use.setAttribute("href", "#clock");
+  icon.append(use);
+  return icon;
+}
+function renderFeaturedServices() {
+  const byId = new Map(serviceCatalog.map(service => [service.id, service]));
+  document.querySelectorAll("[data-service-id]").forEach(card => {
+    const service = byId.get(card.dataset.serviceId);
+    if (!service) return;
+    card.querySelector("h3").textContent = service.name;
+    card.querySelector(".service-price").textContent = service.price;
+    card.querySelector(".service-duration").replaceChildren(createClockIcon(), document.createTextNode(service.duration));
+  });
+}
+function renderCatalog(query = "") {
+  const normalized = normalizeSearch(query);
+  const matches = serviceCatalog.filter(service => normalizeSearch(service.name).includes(normalized));
+  catalogList.replaceChildren();
+  matches.forEach(service => {
+    const item = document.createElement("article");
+    item.className = "catalog-item";
+    const details = document.createElement("div");
+    const heading = document.createElement("h3");
+    heading.textContent = service.name;
+    const duration = document.createElement("p");
+    duration.className = "catalog-duration";
+    duration.append(createClockIcon(), document.createTextNode(service.duration));
+    details.append(heading, duration);
+    const price = document.createElement("p");
+    price.className = "catalog-price";
+    price.textContent = service.price;
+    const action = document.createElement("a");
+    action.className = "button button-outline catalog-book";
+    action.href = APPBARBER_URL;
+    action.target = "_blank";
+    action.rel = "noopener noreferrer";
+    action.setAttribute("aria-label", "Agendar " + service.name + " pelo AppBarber");
+    action.textContent = "Agendar";
+    item.append(details, price, action);
+    catalogList.append(item);
+  });
+  window.observeSiteReveal(catalogList);
+  catalogEmpty.hidden = matches.length !== 0;
+}
+renderFeaturedServices();
+renderCatalog();
+catalogSearch.addEventListener("input", () => renderCatalog(catalogSearch.value));
 
 let framePending = false;
 function updateOnScroll() {
@@ -102,7 +175,6 @@ if (pointerGlow && finePointer.matches && !reduceMotion.matches) {
     });
   }, { passive: true });
 }
-
 reduceMotion.addEventListener?.("change", event => {
   if (event.matches) {
     document.querySelectorAll(".reveal").forEach(target => target.classList.add("is-revealed"));
