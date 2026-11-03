@@ -2,17 +2,18 @@ const APPBARBER_URL = "https://sites.appbarber.com.br/barbeariadoalem-gkiu";
 
 // Fonte única para preços e duração dos destaques e do catálogo.
 const serviceCatalog = [
-  { id: "completo", name: "Barba, cabelo, bigode e sobrancelha", price: "R$ 70,00", duration: "60 min" },
+  { id: "hidratacao", name: "Hidratação capilar", price: "R$ 20,00", duration: "15 min" },
+  { id: "limpeza-pele", name: "Limpeza de pele", price: "R$ 25,00", duration: "15 min" },
+  { id: "depilacao", name: "Depilação (nasal e auricular)", price: "R$ 40,00" },
+  { id: "alisamento-americano", name: "Alisamento americano", price: "R$ 60,00" },
+  { id: "corte-barba-sobrancelha", name: "Corte, barba e sobrancelha", price: "R$ 70,00" },
+  { id: "corte-tesoura-degrade", name: "Corte (tesoura ou degradê)", price: "R$ 40,00" },
+  { id: "corte", name: "Corte tradicional", price: "R$ 35,00", duration: "30 min" },
+  { id: "acabamento-corte", name: "Acabamento de corte + finalização", price: "R$ 15,00" },
+  { id: "sobrancelha", name: "Designer de sobrancelha", price: "R$ 15,00", duration: "15 min" },
+  { id: "acabamento-barba", name: "Acabamento de barba", price: "R$ 15,00" },
   { id: "barbaterapia", name: "Barbaterapia", price: "R$ 30,00", duration: "30 min" },
-  { id: "cabelo-sobrancelha", name: "Cabelo + Sobrancelha", price: "R$ 45,00", duration: "30 min" },
-  { id: "corte", name: "Corte", price: "R$ 35,00", duration: "30 min" },
-  { id: "corte-um-pente", name: "Corte com 1 pente", price: "R$ 25,00", duration: "15 min" },
-  { id: "corte-barba", name: "Corte + Barba", price: "R$ 65,00", duration: "60 min" },
-  { id: "hidratacao", name: "Hidratação", price: "R$ 15,00", duration: "15 min" },
-  { id: "limpeza-pele", name: "Limpeza de pele", price: "R$ 15,00", duration: "15 min" },
-  { id: "platinado", name: "Platinado", price: "A partir de R$ 89,99", duration: "60 min" },
-  { id: "relaxamento", name: "Relaxamento", price: "A partir de R$ 59,99", duration: "30 min" },
-  { id: "sobrancelha", name: "Sobrancelha", price: "R$ 10,00", duration: "15 min" }
+  { id: "barbaterapia-esfoliacao", name: "Barbaterapia com esfoliação", price: "R$ 40,00" }
 ];
 
 const toggle = document.querySelector(".menu-toggle");
@@ -105,7 +106,9 @@ function renderFeaturedServices() {
     if (!service) return;
     card.querySelector("h3").textContent = service.name;
     card.querySelector(".service-price").textContent = service.price;
-    card.querySelector(".service-duration").replaceChildren(createClockIcon(), document.createTextNode(service.duration));
+    const duration = card.querySelector(".service-duration");
+    duration.hidden = !service.duration;
+    if (service.duration) duration.replaceChildren(createClockIcon(), document.createTextNode(service.duration));
   });
 }
 function renderCatalog(query = "") {
@@ -120,8 +123,12 @@ function renderCatalog(query = "") {
     heading.textContent = service.name;
     const duration = document.createElement("p");
     duration.className = "catalog-duration";
-    duration.append(createClockIcon(), document.createTextNode(service.duration));
-    details.append(heading, duration);
+    if (service.duration) {
+      duration.append(createClockIcon(), document.createTextNode(service.duration));
+      details.append(heading, duration);
+    } else {
+      details.append(heading);
+    }
     const price = document.createElement("p");
     price.className = "catalog-price";
     price.textContent = service.price;
