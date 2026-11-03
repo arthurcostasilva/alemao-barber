@@ -2,19 +2,20 @@ const APPBARBER_URL = "https://sites.appbarber.com.br/barbeariadoalem-gkiu";
 
 // Fonte única para preços e duração dos destaques e do catálogo.
 const serviceCatalog = [
-  { id: "hidratacao", name: "Hidratação capilar", price: "R$ 20,00", duration: "15 min" },
-  { id: "limpeza-pele", name: "Limpeza de pele", price: "R$ 25,00", duration: "15 min" },
-  { id: "depilacao", name: "Depilação (nasal e auricular)", price: "R$ 40,00" },
-  { id: "alisamento-americano", name: "Alisamento americano", price: "R$ 60,00" },
-  { id: "corte-barba-sobrancelha", name: "Corte, barba e sobrancelha", price: "R$ 70,00" },
-  { id: "corte-tesoura-degrade", name: "Corte (tesoura ou degradê)", price: "R$ 40,00" },
-  { id: "corte", name: "Corte tradicional", price: "R$ 35,00", duration: "30 min" },
-  { id: "acabamento-corte", name: "Acabamento de corte + finalização", price: "R$ 15,00" },
-  { id: "sobrancelha", name: "Designer de sobrancelha", price: "R$ 15,00", duration: "15 min" },
-  { id: "acabamento-barba", name: "Acabamento de barba", price: "R$ 15,00" },
-  { id: "barbaterapia", name: "Barbaterapia", price: "R$ 30,00", duration: "30 min" },
-  { id: "barbaterapia-esfoliacao", name: "Barbaterapia com esfoliação", price: "R$ 40,00" }
+  { id: "hidratacao", category: "Cuidados capilares e faciais", name: "Hidratação capilar", price: "R$ 20,00" },
+  { id: "limpeza-pele", category: "Cuidados capilares e faciais", name: "Limpeza de pele", price: "R$ 25,00" },
+  { id: "depilacao", category: "Cuidados capilares e faciais", name: "Depilação (nasal e auricular)", price: "R$ 40,00" },
+  { id: "alisamento-americano", category: "Cuidados capilares e faciais", name: "Alisamento americano", price: "R$ 60,00" },
+  { id: "corte-barba-sobrancelha", category: "Cortes e acabamentos", name: "Corte, barba e sobrancelha", price: "R$ 70,00" },
+  { id: "corte-tesoura-degrade", category: "Cortes e acabamentos", name: "Corte (tesoura ou degradê)", price: "R$ 40,00" },
+  { id: "corte", category: "Cortes e acabamentos", name: "Corte tradicional", price: "R$ 35,00" },
+  { id: "acabamento-corte", category: "Cortes e acabamentos", name: "Acabamento de corte + finalização", price: "R$ 15,00" },
+  { id: "sobrancelha", category: "Cortes e acabamentos", name: "Designer de sobrancelha", price: "R$ 15,00" },
+  { id: "acabamento-barba", category: "Cortes e acabamentos", name: "Acabamento de barba", price: "R$ 15,00" },
+  { id: "barbaterapia", category: "Terapias", name: "Barbaterapia", price: "R$ 30,00" },
+  { id: "barbaterapia-esfoliacao", category: "Terapias", name: "Barbaterapia com esfoliação", price: "R$ 40,00" }
 ];
+const serviceCategoryOrder = ["Cuidados capilares e faciais", "Cortes e acabamentos", "Terapias"];
 
 const toggle = document.querySelector(".menu-toggle");
 const navigation = document.querySelector("#navigation");
@@ -107,40 +108,43 @@ function renderFeaturedServices() {
     card.querySelector("h3").textContent = service.name;
     card.querySelector(".service-price").textContent = service.price;
     const duration = card.querySelector(".service-duration");
-    duration.hidden = !service.duration;
-    if (service.duration) duration.replaceChildren(createClockIcon(), document.createTextNode(service.duration));
+    if (duration) duration.hidden = !service.duration;
   });
 }
 function renderCatalog(query = "") {
   const normalized = normalizeSearch(query);
   const matches = serviceCatalog.filter(service => normalizeSearch(service.name).includes(normalized));
   catalogList.replaceChildren();
-  matches.forEach(service => {
-    const item = document.createElement("article");
-    item.className = "catalog-item";
-    const details = document.createElement("div");
-    const heading = document.createElement("h3");
-    heading.textContent = service.name;
-    const duration = document.createElement("p");
-    duration.className = "catalog-duration";
-    if (service.duration) {
-      duration.append(createClockIcon(), document.createTextNode(service.duration));
-      details.append(heading, duration);
-    } else {
-      details.append(heading);
-    }
-    const price = document.createElement("p");
-    price.className = "catalog-price";
-    price.textContent = service.price;
-    const action = document.createElement("a");
-    action.className = "button button-outline catalog-book";
-    action.href = APPBARBER_URL;
-    action.target = "_blank";
-    action.rel = "noopener noreferrer";
-    action.setAttribute("aria-label", "Agendar " + service.name + " pelo AppBarber");
-    action.textContent = "Agendar";
-    item.append(details, price, action);
-    catalogList.append(item);
+  serviceCategoryOrder.forEach(category => {
+    const services = matches.filter(service => service.category === category);
+    if (!services.length) return;
+    const group = document.createElement("section");
+    group.className = "catalog-group";
+    const groupTitle = document.createElement("h3");
+    groupTitle.className = "catalog-group-title";
+    groupTitle.textContent = category;
+    const items = document.createElement("div");
+    items.className = "catalog-group-items";
+    services.forEach(service => {
+      const item = document.createElement("article");
+      item.className = "catalog-item";
+      const heading = document.createElement("h4");
+      heading.textContent = service.name;
+      const price = document.createElement("p");
+      price.className = "catalog-price";
+      price.textContent = service.price;
+      const action = document.createElement("a");
+      action.className = "button button-outline catalog-book";
+      action.href = APPBARBER_URL;
+      action.target = "_blank";
+      action.rel = "noopener noreferrer";
+      action.setAttribute("aria-label", "Agendar " + service.name + " pelo AppBarber");
+      action.textContent = "Agendar";
+      item.append(heading, price, action);
+      items.append(item);
+    });
+    group.append(groupTitle, items);
+    catalogList.append(group);
   });
   window.observeSiteReveal(catalogList);
   catalogEmpty.hidden = matches.length !== 0;
