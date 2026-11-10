@@ -7,7 +7,7 @@ const serviceCatalog = [
   { id: "depilacao", category: "Cuidados capilares e faciais", name: "Depilação (nasal e auricular)", price: "R$ 40,00" },
   { id: "alisamento-americano", category: "Cuidados capilares e faciais", name: "Alisamento americano", price: "R$ 60,00" },
   { id: "corte-barba-sobrancelha", category: "Cortes e acabamentos", name: "Corte, barba e sobrancelha", price: "R$ 70,00" },
-  { id: "corte-tesoura-degrade", category: "Cortes e acabamentos", name: "Corte degradê na tesoura", price: "R$ 40,00" },
+  { id: "corte-tesoura-degrade", category: "Cortes e acabamentos", name: "Corte (tesoura ou degradê)", price: "R$ 40,00" },
   { id: "corte", category: "Cortes e acabamentos", name: "Corte social", price: "R$ 35,00" },
   { id: "acabamento-corte", category: "Cortes e acabamentos", name: "Acabamento de corte + finalização", price: "R$ 15,00" },
   { id: "sobrancelha", category: "Cortes e acabamentos", name: "Designer de sobrancelha", price: "R$ 15,00" },
